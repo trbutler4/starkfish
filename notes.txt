@@ -1,9 +1,14 @@
 
 starkfish -- starknet chess engine 
 
-bitboard representation
+chess programming wiki - https://www.chessprogramming.org/Move_Generation
+bitboard representation - https://pages.cs.wisc.edu/~psilord/blog/data/chess-pages/rep.html
+generating moves - https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
+lichess board editor - https://lichess.org/editor
+rust stockfish rewrite - https://github.com/pleco-rs/Pleco
+bitboard calculator - https://gekomad.github.io/Cinnamon/BitboardCalculator/
 
- - https://pages.cs.wisc.edu/~psilord/blog/data/chess-pages/rep.html
+
 
  bitboard -> 64 bit number 
  LSB -> A1 on chess board 
@@ -28,4 +33,16 @@ bitboard representation
     ...
     G8 -> 62
     H8 -> 63
+
+
+
+project structure 
+
+    board
+        - has pieces 
+        - has state 
+            - king can castle (both sides)
+
+
+
 
