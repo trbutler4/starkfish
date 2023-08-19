@@ -1,87 +1,4 @@
-use dict::Felt252DictTrait;
 use debug::PrintTrait;
-
-
-// mapping of squares to their bitboard representation 
-// maybe better to do this with a struct?
-#[derive(Index, IndexView)]
-fn create_sqaure_map() {
-    let mut squares: Felt252Dict<u64> = Default::default();
-    squares.insert('A1', 0x1);
-    squares.insert('B1', 0x2);
-    squares.insert('C1', 0x4);
-    squares.insert('D1', 0x8);
-    squares.insert('E1', 0x10);
-    squares.insert('F1', 0x20);
-    squares.insert('G1', 0x40);
-    squares.insert('H1', 0x80);
-
-    squares.insert('A2', 0x100);
-    squares.insert('B2', 0x200);
-    squares.insert('C2', 0x400);
-    squares.insert('D2', 0x800);
-    squares.insert('E2', 0x1000);
-    squares.insert('F2', 0x2000);
-    squares.insert('G2', 0x4000);
-    squares.insert('H2', 0x8000);
-
-    squares.insert('A3', 0x10000);
-    squares.insert('B3', 0x20000);
-    squares.insert('C3', 0x40000);
-    squares.insert('D3', 0x80000);
-    squares.insert('E3', 0x100000);
-    squares.insert('F3', 0x200000);
-    squares.insert('G3', 0x400000);
-    squares.insert('H3', 0x800000);
-
-    squares.insert('A4', 0x1000000);
-    squares.insert('B4', 0x2000000);
-    squares.insert('C4', 0x4000000);
-    squares.insert('D4', 0x8000000);
-    squares.insert('E4', 0x10000000);
-    squares.insert('F4', 0x20000000);
-    squares.insert('G4', 0x40000000);
-    squares.insert('H4', 0x80000000);
-
-    squares.insert('A5', 0x100000000);
-    squares.insert('B5', 0x200000000);
-    squares.insert('C5', 0x400000000);
-    squares.insert('D5', 0x800000000);
-    squares.insert('E5', 0x1000000000);
-    squares.insert('F5', 0x2000000000);
-    squares.insert('G5', 0x4000000000);
-    squares.insert('H5', 0x8000000000);
-
-    squares.insert('A6', 0x10000000000);
-    squares.insert('B6', 0x20000000000);
-    squares.insert('C6', 0x40000000000);
-    squares.insert('D6', 0x80000000000);
-    squares.insert('E6', 0x100000000000);
-    squares.insert('F6', 0x200000000000);
-    squares.insert('G6', 0x400000000000);
-    squares.insert('H6', 0x800000000000);
-
-    squares.insert('A7', 0x1000000000000);
-    squares.insert('B7', 0x2000000000000);
-    squares.insert('C7', 0x4000000000000);
-    squares.insert('D7', 0x8000000000000);
-    squares.insert('E7', 0x10000000000000);
-    squares.insert('F7', 0x20000000000000);
-    squares.insert('G7', 0x40000000000000);
-    squares.insert('H7', 0x80000000000000);
-
-    squares.insert('A8', 0x100000000000000);
-    squares.insert('B8', 0x200000000000000);
-    squares.insert('C8', 0x400000000000000);
-    squares.insert('D8', 0x800000000000000);
-    squares.insert('E8', 0x1000000000000000);
-    squares.insert('F8', 0x2000000000000000);
-    squares.insert('G8', 0x4000000000000000);
-    squares.insert('H8', 0x8000000000000000);
-}
-
-fn toggle_bit(bb: u64, sqaure: felt252) { // TODO  
-}
 
 fn shift_left(val: u64, n: u8) -> u64 {
     val * power_of_2(n)
@@ -108,11 +25,13 @@ fn power_of_2(n: u8) -> u64 {
 }
 
 // shift a given bitboard one rank up 
+// TODO: handle overflow 
 fn shift_rank_up(bb: u64) -> u64 {
     shift_left(bb, 8)
 }
 
 // shift a given bitboard one rank down
+// TODO: handle overflow
 fn shift_rank_down(bb: u64) -> u64 {
     shift_right(bb, 8)
 }
@@ -197,8 +116,3 @@ fn test_shift_rank_up_8th_rank() {
     shift_rank_up(x); // should overflow
 }
 
-#[test]
-#[should_panic]
-fn test_sanity() {
-    0x100000000_u64 * 0x100000000_u64;
-}

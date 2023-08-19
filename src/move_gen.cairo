@@ -13,7 +13,7 @@ const RANK6: u64 = 0x0000ff0000000000;
 // ---------------------------------------------------
 // -------- PAWN MOVES -------------------------------
 // ---------------------------------------------------
-// https://www.chessprogramming.org/Pawn_Pushes_(Bitboards)
+// https://www.chessprogramming.org/Pawn_Pattern_and_Properties
 
 // returns target for moving all pawns one forward
 // NOTE: currently will overflow at end of board
@@ -32,7 +32,7 @@ fn white_pawns_single_push_eligible(wpawns: u64, empty: u64) -> u64 {
 }
 
 fn white_pawns_double_push_eligible(wpawns: u64, empty: u64) -> u64 {
-    let empty_rank3 = shift_rank_down(empty & RANK4) & empty;
+    let empty_rank3 = shift_rank_down(empty & RANK4) & empty; 
     white_pawns_single_push_eligible(wpawns, empty_rank3)
 }
 
@@ -44,6 +44,15 @@ fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
 fn black_pawn_double_push_targets(bpawns: u64, empty: u64) -> u64 {
     let single_push = black_pawn_single_push_targets(bpawns, empty);
     shift_rank_down(single_push) & empty & RANK5
+}
+
+fn black_pawns_single_push_eligible(bpawns: u64, empty: u64) -> u64 {
+    shift_rank_up(empty) & bpawns
+}
+
+fn black_pawns_double_push_eligible(bpawns: u64, empty: u64) -> u64 {
+    let empty_rank6 = shift_rank_up(empty & RANK5) & empty;
+    black_pawns_single_push_eligible(bpawns, empty_rank6)
 }
 
 
@@ -95,14 +104,28 @@ fn test_white_pawn_double_push_targets() {
 }
 
 #[test]
+#[available_gas(9999999)]
 fn test_white_pawns_single_push_eligible() {
     // with new board 
     let mut new_board = BoardTrait::new();
+    let pawns = new_board.white_pawns;
+    let empty = new_board.empty_squares();
+    assert(white_pawns_single_push_eligible(pawns, empty) == 0xff00, 'all pawns single push eligible')
+}
+
+#[test]
+#[available_gas(99999999)]
+fn test_white_pawns_double_push_eligble() {
+    // with new board 
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.white_pawns;
+    let empty = new_board.empty_squares();
+    assert(white_pawns_double_push_eligible(pawns, empty) == 0xff00, 'all pawns double push eligible')
 }
 
 #[test]
 #[available_gas(9999999)]
-fn test_black_pawn_single_push_targets() {
+fn test_black_pawns_single_push_targets() {
     // with new board 
     let mut new_board = BoardTrait::new();
     let pawns = new_board.black_pawns;
@@ -113,7 +136,7 @@ fn test_black_pawn_single_push_targets() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_black_pawn_double_push_targets() {
+fn test_black_pawns_double_push_targets() {
     let mut new_board = BoardTrait::new();
     let pawns = new_board.black_pawns;
     let empty = new_board.empty_squares();
@@ -125,3 +148,44 @@ fn test_black_pawn_double_push_targets() {
     let target = black_pawn_double_push_targets(pawns, empty);
     assert(target == 0xaa00000000, 'only eligible double pushes');
 }
+
+#[test]
+#[available_gas(999999999)]
+fn test_black_pawns_single_push_eligible() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.black_pawns;
+    let empty = new_board.empty_squares();
+    let eligible = black_pawns_single_push_eligible(pawns, empty);
+    assert(eligible == 0xff000000000000, 'all pawns single push eligible')
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_black_pawns_double_push_eligible() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.black_pawns;
+    let empty = new_board.empty_squares();
+    let eligible = black_pawns_double_push_eligible(pawns, empty);
+    assert(eligible == 0xff000000000000, 'all pawns double push eligible')
+}
+
+
+// ---------------------------------------------------
+// -------- ROOK MOVE TESTS --------------------------
+// ---------------------------------------------------
+
+// ---------------------------------------------------
+// -------- KNIGHT MOVE TESTS ------------------------
+// ---------------------------------------------------
+
+// ---------------------------------------------------
+// -------- BISHOP MOVE TESTS ------------------------
+// ---------------------------------------------------
+
+// ---------------------------------------------------
+// -------- QUEEN MOVE TESTS -------------------------
+// ---------------------------------------------------
+
+// ---------------------------------------------------
+// -------- KING MOVE TESTS --------------------------
+// ---------------------------------------------------
