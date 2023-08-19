@@ -17,25 +17,35 @@ const RANK6: u64 = 0x0000ff0000000000;
 
 // returns target for moving all pawns one forward
 // NOTE: currently will overflow at end of board
-fn white_pawn_single_push_targets(w_pawns: u64, empty: u64) -> u64 {
-    shift_rank_up(w_pawns) & empty
+fn white_pawn_single_push_targets(wpawns: u64, empty: u64) -> u64 {
+    shift_rank_up(wpawns) & empty
 }
 
 // returns targets for moving all eligible pawns two forward
-fn white_pawn_double_push_targets(w_pawns: u64, empty: u64) -> u64 {
-    let single_push = white_pawn_single_push_targets(w_pawns, empty);
+fn white_pawn_double_push_targets(wpawns: u64, empty: u64) -> u64 {
+    let single_push = white_pawn_single_push_targets(wpawns, empty);
     shift_rank_up(single_push) & empty & RANK4
 }
 
-fn black_pawn_single_push_targets(b_pawns: u64, empty: u64) -> u64 {
-    shift_rank_down(b_pawns) & empty
+fn white_pawns_single_push_eligible(wpawns: u64, empty: u64) -> u64 {
+    shift_rank_down(empty) & wpawns
+}
+
+fn white_pawns_double_push_eligible(wpawns: u64, empty: u64) -> u64 {
+    let empty_rank3 = shift_rank_down(empty & RANK4) & empty;
+    white_pawns_single_push_eligible(wpawns, empty_rank3)
+}
+
+fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
+    shift_rank_down(bpawns) & empty
 }
 
 // returns targets for moving all eligible pawns two forward
-fn black_pawn_double_push_targets(b_pawns: u64, empty: u64) -> u64 {
-    let single_push = black_pawn_single_push_targets(b_pawns, empty);
+fn black_pawn_double_push_targets(bpawns: u64, empty: u64) -> u64 {
+    let single_push = black_pawn_single_push_targets(bpawns, empty);
     shift_rank_down(single_push) & empty & RANK5
 }
+
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
@@ -85,6 +95,12 @@ fn test_white_pawn_double_push_targets() {
 }
 
 #[test]
+fn test_white_pawns_single_push_eligible() {
+    // with new board 
+    let mut new_board = BoardTrait::new();
+}
+
+#[test]
 #[available_gas(9999999)]
 fn test_black_pawn_single_push_targets() {
     // with new board 
@@ -94,6 +110,7 @@ fn test_black_pawn_single_push_targets() {
     assert(black_pawn_single_push_targets(pawns, empty) == RANK6, 'all pawns can push up one')
 }
 
+
 #[test]
 #[available_gas(9999999)]
 fn test_black_pawn_double_push_targets() {
@@ -101,7 +118,6 @@ fn test_black_pawn_double_push_targets() {
     let pawns = new_board.black_pawns;
     let empty = new_board.empty_squares();
     let target = black_pawn_double_push_targets(pawns, empty);
-    target.print();
     assert(target == RANK5, 'all pawns can push twice');
 
     // some pawns already moved once
