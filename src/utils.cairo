@@ -80,7 +80,7 @@ fn create_sqaure_map() {
     squares.insert('H8', 0x8000000000000000);
 }
 
-fn toggle_bit(bb: u64, sqaure: felt252) {// TODO  
+fn toggle_bit(bb: u64, sqaure: felt252) { // TODO  
 }
 
 fn shift_left(val: u64, n: u8) -> u64 {

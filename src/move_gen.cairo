@@ -23,8 +23,8 @@ fn white_pawn_single_push_targets(w_pawns: u64, empty: u64) -> u64 {
 
 // returns targets for moving all eligible pawns two forward
 fn white_pawn_double_push_targets(w_pawns: u64, empty: u64) -> u64 {
-     let single_push = white_pawn_single_push_targets(w_pawns, empty);
-     shift_rank_up(single_push) & empty & RANK4
+    let single_push = white_pawn_single_push_targets(w_pawns, empty);
+    shift_rank_up(single_push) & empty & RANK4
 }
 
 fn black_pawn_single_push_targets(b_pawns: u64, empty: u64) -> u64 {
@@ -33,8 +33,8 @@ fn black_pawn_single_push_targets(b_pawns: u64, empty: u64) -> u64 {
 
 // returns targets for moving all eligible pawns two forward
 fn black_pawn_double_push_targets(b_pawns: u64, empty: u64) -> u64 {
-     let single_push = black_pawn_single_push_targets(b_pawns, empty);
-     shift_rank_down(single_push) & empty & RANK5
+    let single_push = black_pawn_single_push_targets(b_pawns, empty);
+    shift_rank_down(single_push) & empty & RANK5
 }
 
 // ---------------------------------------------------
