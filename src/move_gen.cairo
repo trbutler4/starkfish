@@ -212,6 +212,14 @@ fn test_white_pawn_attacks() {
 
     assert(ks_attacks == 0xfe0000, 'all can attack except a file');
     assert(qs_attacks == 0x7f0000, 'all can attack except h file');
+
+    // diamond setup
+    let pawns = 0x55aa00;
+    let ks_attacks = white_pawn_ks_attacks(pawns);
+    let qs_attacks = white_pawn_qs_attacks(pawns);
+
+    assert(ks_attacks == 0xaa540000, 'failed diamond pawns');
+    assert(qs_attacks == 0x2a550000, 'failed diamond pawns');
 }
 
 #[test]
@@ -225,6 +233,13 @@ fn test_black_pawn_attacks() {
 
     assert(ks_attacks == 0xfe0000000000, 'all can attack except a file');
     assert(qs_attacks == 0x7f0000000000, 'all can attack except h file');
+
+    let pawns = 0xaa550000000000;
+    let ks_attacks = black_pawn_ks_attacks(pawns);
+    let qs_attacks = black_pawn_qs_attacks(pawns);
+
+    assert(ks_attacks == 0x54aa00000000, 'ks wrong');
+    assert(qs_attacks == 0x552a00000000, 'qs wrong');
 
 }
 
