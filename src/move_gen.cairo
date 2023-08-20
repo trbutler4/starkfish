@@ -101,6 +101,18 @@ fn black_pawn_ks_attacks(bpawns: u64) -> u64 {
     shift_right(bpawns, 7) & NOT_A_FILE
 }
 
+fn black_pawn_all_attacks(bpawns: u64) -> u64 {
+    black_pawn_ks_attacks(bpawns) | black_pawn_qs_attacks(bpawns)
+}
+
+fn black_pawn_double_attacks(bpawns: u64) -> u64 {
+    black_pawn_ks_attacks(bpawns) & black_pawn_qs_attacks(bpawns)
+}
+
+fn black_pawn_single_attacks(bpawns: u64) -> u64 {
+    black_pawn_ks_attacks(bpawns) ^ black_pawn_qs_attacks(bpawns)
+}
+
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
@@ -270,6 +282,24 @@ fn test_black_pawn_attacks() {
 
     assert(ks_attacks == 0x54aa00000000, 'ks wrong');
     assert(qs_attacks == 0x552a00000000, 'qs wrong');
+
+    //  black pawns       
+    //  . . . . . . . .   
+    //  a b . d . f g h   
+    //  . . c . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    let pawns = 0xeb040000000000;
+    let all_attacks = black_pawn_all_attacks(pawns);
+    let double_attacks = black_pawn_double_attacks(pawns);
+    let single_attacks = black_pawn_single_attacks(pawns);
+
+    assert(all_attacks == 0xf70a00000000, 'failed all attacks');
+    assert(double_attacks == 0x540000000000, 'failed double attacks');
+    assert(single_attacks == 0xa30a00000000, 'failed single attacks');
 
 }
 
