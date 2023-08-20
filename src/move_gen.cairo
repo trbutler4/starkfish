@@ -7,6 +7,7 @@ use starkfish::utils::shift_rank_down;
 use starkfish::utils::shift_left;
 use starkfish::utils::shift_right;
 use starkfish::utils::bitboard_shift_left;
+use starkfish::utils::bitboard_shift_right;
 
 
 const RANK3: u64 =          0x0000000000ff0000;
@@ -163,7 +164,7 @@ fn north_sliding_targets(sq: u8) -> u64 {
     bitboard_shift_left(0x0101010101010100, sq)
 }
 fn south_sliding_targets(sq: u8) -> u64 {
-    shift_right(0x8080808080808000, (sq ^ 63))
+    bitboard_shift_right(0x80808080808080, (sq ^ 63))
 }
 fn east_sliding_targets(sq: u8) -> u64 {
     let one = 0x1;
@@ -389,7 +390,6 @@ fn test_north_sliding_attacks() {
 }
 
 #[test]
-#[ignore]
 #[available_gas(9999999)]
 fn test_south_sliding_attacks() {
     //  8 . . . . . . . .   
@@ -400,10 +400,11 @@ fn test_south_sliding_attacks() {
     //  3 . . . 1 . . . .   
     //  2 . . . 1 . . . .   
     //  1 . . . 1 . . . .   
-    //      a b c d e f g h
+    //    a b c d e f g h
     let sq = 35_u8; // D5
     let targets = south_sliding_targets(sq);
-    assert (targets == 0x808080808, '');
+    targets.print();
+    assert (targets == 0x8080808, 'rook on d5');
 
     //  8 . . . . . . . R   
     //  7 . . . . . . . 1   
@@ -417,7 +418,7 @@ fn test_south_sliding_attacks() {
     let sq = 63_u8; // D5
     let targets = south_sliding_targets(sq);
     targets.print();
-    assert (targets == 8080808080808080, '');
+    assert (targets == 0x80808080808080, 'rook on h8');
 }
 
 #[test]
