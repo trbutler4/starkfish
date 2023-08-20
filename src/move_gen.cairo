@@ -385,7 +385,6 @@ fn test_north_sliding_attacks() {
     //    a b c d e f g h
     let sq = 35_u8; // D5
     let targets = north_sliding_targets(sq);
-    targets.print();
     assert (targets == 0x808080000000000, '');
 }
 

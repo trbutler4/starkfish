@@ -12,12 +12,21 @@ fn shift_right(val: u64, n: u8) -> u64 {
     val / power_of_2(n)
 }
 
-// instead of overflowing, this will ignore bits that 
+// instead of overflowing, these will ignore bits that 
 // go "off the board"  
 fn bitboard_shift_left(bb: u64, n: u8) -> u64 {
-    let mut val_u128: u128 = bb.into();
-    val_u128 = val_u128 * power_of_2(n).into();
-    let res: u64 = (val_u128 & 0xFFFFFFFFFFFFFFFF).try_into().unwrap();
+    let mut bb_u128: u128 = bb.into();
+    bb_u128 = bb_u128 * power_of_2(n).into();
+    let res: u64 = (bb_u128 & 0xFFFFFFFFFFFFFFFF).try_into().unwrap();
+    res
+}
+fn bitboard_shift_right(bb: u64, n: u8) -> u64 {
+    let mut bb_u128: u128 = bb.into();
+    bb_u128 = bb_u128 * 2 * power_of_2(63).into();
+    bb_u128 = bb_u128 / power_of_2(n).into();
+    bb_u128 = bb_u128 / power_of_2(63).into();
+    bb_u128 = bb_u128 / 2;
+    let mut res: u64 = (bb_u128 & 0xFFFFFFFFFFFFFFFF).try_into().unwrap();
     res
 }
 
@@ -133,10 +142,25 @@ fn test_shift_rank_up_8th_rank() {
 fn test_bitboard_shift_left() {
     let x = 0x101010101010100;
     let shifted = bitboard_shift_left(x, 20);
-    assert(shifted == 0x1010101010000000, '');
+    assert(shifted == 0x1010101010000000, 'shifting some off board');
 
     let x = 0x101010101010100;
     let shifted = bitboard_shift_left(x, 63);
-    assert(shifted == 0x0, '');
+    assert(shifted == 0x0, 'shifting all off board');
+
+    let x = 0x1;
+    let shifted = bitboard_shift_left(x, 63);
+    assert(shifted == 0x8000000000000000, 'corner to corner');
 }
 
+#[test]
+#[available_gas(9999999)]
+fn test_bitboard_shift_right() {
+    let x = 0x8000000000000000;
+    let shifted = bitboard_shift_right(x, 63);
+    assert(shifted == 0x1, 'corner to corner');
+
+    let x = 0x8080808080808080;
+    let shifted = bitboard_shift_right(x, 20);
+    assert(shifted == 0x80808080808, 'shifting some off board');
+}
