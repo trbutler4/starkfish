@@ -1,5 +1,6 @@
 use debug::PrintTrait;
 
+
 fn shift_left(val: u64, n: u8) -> u64 {
     val * power_of_2(n)
 }
@@ -85,32 +86,27 @@ fn test_shift_right() {
 #[test]
 #[available_gas(9999999)]
 fn test_count_set_bits() {
-    let x = 0b010101;
-    let y = 0xff;
-    assert(count_set_bits(x) == 3, '0b010101 has 3 bits set');
-    assert(count_set_bits(y) == 8, '0xff has 8 bits set');
+    assert(count_set_bits(0b010101) == 3, '0b010101 has 3 bits set');
+    assert(count_set_bits(0xff) == 8, '0xff has 8 bits set');
 }
 
 #[test]
 #[available_gas(9999999)]
 fn test_shift_rank_up() {
-    let x = 0xff00;
-    let y = 0xaa5500;
-    assert(shift_rank_up(x) == 0xff0000, 'should be shifted up one rank');
-    assert(shift_rank_up(y) == 0xaa550000, 'should be shifted up one rank');
+    assert(shift_rank_up(0xff00) == 0xff0000, 'should be shifted up one rank');
+    assert(shift_rank_up(0xaa5500) == 0xaa550000, 'should be shifted up one rank');
 }
 
 #[test]
 #[available_gas(9999999)]
 fn test_shift_rank_down() {
-    let x = 0xff0000;
-    let y = 0xaa550000;
-    assert(shift_rank_down(x) == 0xff00, 'should be shifted down one rank');
-    assert(shift_rank_down(y) == 0xaa5500, 'should be shifted down one rank');
+    assert(shift_rank_down(0xff0000) == 0xff00, 'should be shifted down one rank');
+    assert(shift_rank_down(0xaa550000) == 0xaa5500, 'should be shifted down one rank');
 }
 
 #[test]
-#[should_panic]
+#[available_gas(9999999)]
+#[should_panic] // currently expected behavior, but 
 fn test_shift_rank_up_8th_rank() {
     let x = 0xff00000000000000; // 8th rank
     shift_rank_up(x); // should overflow
