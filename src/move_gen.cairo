@@ -62,6 +62,18 @@ fn white_pawn_qs_attacks(wpawns: u64) -> u64 {
     shift_left(wpawns, 7) & NOT_H_FILE
 }
 
+fn white_pawn_all_attacks(wpawns: u64) -> u64 {
+    white_pawn_ks_attacks(wpawns) | white_pawn_qs_attacks(wpawns)
+}
+
+fn white_pawn_double_attacks(wpawns: u64) -> u64 {
+    white_pawn_ks_attacks(wpawns) & white_pawn_qs_attacks(wpawns)
+}
+
+fn white_pawn_single_attacks(wpawns: u64) -> u64 {
+    white_pawn_ks_attacks(wpawns) ^ white_pawn_qs_attacks(wpawns)
+}
+
 fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
     shift_rank_down(bpawns) & empty
 }
@@ -88,6 +100,7 @@ fn black_pawn_qs_attacks(bpawns: u64) -> u64 {
 fn black_pawn_ks_attacks(bpawns: u64) -> u64 {
     shift_right(bpawns, 7) & NOT_A_FILE
 }
+
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
@@ -220,6 +233,24 @@ fn test_white_pawn_attacks() {
 
     assert(ks_attacks == 0xaa540000, 'failed diamond pawns');
     assert(qs_attacks == 0x2a550000, 'failed diamond pawns');
+
+    //  white pawns       
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . . . . . . .   
+    //  . . c . . . . .   
+    //  a b . d . f g h   
+    //  . . . . . . . .   
+    let pawns = 0x4eb00;
+    let all_attacks = white_pawn_all_attacks(pawns);
+    let single_attacks = white_pawn_single_attacks(pawns);
+    let double_attacks = white_pawn_double_attacks(pawns);
+
+    assert(all_attacks == 0xaf70000, 'failed all attack');
+    assert(single_attacks == 0xaa30000, 'failed single attack');
+    assert(double_attacks == 0x540000, 'failed double attack')
 }
 
 #[test]
@@ -228,7 +259,6 @@ fn test_black_pawn_attacks() {
     let mut new_board = BoardTrait::new();
     let pawns = new_board.black_pawns;
     let ks_attacks = black_pawn_ks_attacks(pawns);
-    ks_attacks.print();
     let qs_attacks = black_pawn_qs_attacks(pawns);
 
     assert(ks_attacks == 0xfe0000000000, 'all can attack except a file');
