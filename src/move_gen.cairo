@@ -4,11 +4,17 @@ use starkfish::board::BoardTrait;
 
 use starkfish::utils::shift_rank_up;
 use starkfish::utils::shift_rank_down;
+use starkfish::utils::shift_left;
+use starkfish::utils::shift_right;
 
-const RANK3: u64 = 0x0000000000ff0000;
-const RANK4: u64 = 0x00000000ff000000;
-const RANK5: u64 = 0x000000ff00000000;
-const RANK6: u64 = 0x0000ff0000000000;
+
+const RANK3: u64 =          0x0000000000ff0000;
+const RANK4: u64 =          0x00000000ff000000;
+const RANK5: u64 =          0x000000ff00000000;
+const RANK6: u64 =          0x0000ff0000000000;
+
+const NOT_A_FILE: u64 =     0xfefefefefefefefe;
+const NOT_H_FILE: u64 =     0x7f7f7f7f7f7f7f7f;
 
 // ---------------------------------------------------
 // -------- PAWN MOVES -------------------------------
@@ -36,6 +42,26 @@ fn white_pawns_double_push_eligible(wpawns: u64, empty: u64) -> u64 {
     white_pawns_single_push_eligible(wpawns, empty_rank3)
 }
 
+// TODO white pawn attacks 
+// east side == king side
+//  white pawns       white pawns << 9  &       notAFile     ==   wPawnEastAttacks
+//  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
+//  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
+//  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
+//  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
+//  . . . . . . . .     h . . c . . . .      . 1 1 1 1 1 1 1      . . . c . . . . 
+//  . . c . . . . .     . a b . d . f g      . 1 1 1 1 1 1 1      . a b . d . f g 
+//  a b . d . f g h     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
+//  . . . . . . . .     / . . . . . . .      . 1 1 1 1 1 1 1      / . . . . . . .
+
+fn white_pawn_ks_attacks(wpawns: u64) -> u64 {
+    shift_left(wpawns, 9) & NOT_A_FILE
+}
+
+fn white_pawn_qs_attacks(wpawns: u64) -> u64 {
+    shift_left(wpawns, 7) & NOT_H_FILE
+}
+
 fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
     shift_rank_down(bpawns) & empty
 }
@@ -55,6 +81,13 @@ fn black_pawns_double_push_eligible(bpawns: u64, empty: u64) -> u64 {
     black_pawns_single_push_eligible(bpawns, empty_rank6)
 }
 
+fn black_pawn_qs_attacks(bpawns: u64) -> u64 {
+    shift_right(bpawns, 9) & NOT_H_FILE
+}
+
+fn black_pawn_ks_attacks(bpawns: u64) -> u64 {
+    shift_right(bpawns, 7) & NOT_A_FILE
+}
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
@@ -167,6 +200,32 @@ fn test_black_pawns_double_push_eligible() {
     let empty = new_board.empty_squares();
     let eligible = black_pawns_double_push_eligible(pawns, empty);
     assert(eligible == 0xff000000000000, 'all pawns double push eligible')
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_white_pawn_attacks() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.white_pawns;
+    let ks_attacks = white_pawn_ks_attacks(pawns);
+    let qs_attacks = white_pawn_qs_attacks(pawns);
+
+    assert(ks_attacks == 0xfe0000, 'all can attack except a file');
+    assert(qs_attacks == 0x7f0000, 'all can attack except h file');
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_black_pawn_attacks() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.black_pawns;
+    let ks_attacks = black_pawn_ks_attacks(pawns);
+    ks_attacks.print();
+    let qs_attacks = black_pawn_qs_attacks(pawns);
+
+    assert(ks_attacks == 0xfe0000000000, 'all can attack except a file');
+    assert(qs_attacks == 0x7f0000000000, 'all can attack except h file');
+
 }
 
 
