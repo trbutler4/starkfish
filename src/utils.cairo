@@ -1,4 +1,7 @@
 use debug::PrintTrait;
+use traits::Into;
+use core::traits::TryInto;
+use option::OptionTrait;
 
 
 fn shift_left(val: u64, n: u8) -> u64 {
@@ -9,7 +12,18 @@ fn shift_right(val: u64, n: u8) -> u64 {
     val / power_of_2(n)
 }
 
+// instead of overflowing, this will ignore bits that 
+// go "off the board"  
+fn bitboard_shift_left(bb: u64, n: u8) -> u64 {
+    let mut val_u128: u128 = bb.into();
+    val_u128 = val_u128 * power_of_2(n).into();
+    let res: u64 = (val_u128 & 0xFFFFFFFFFFFFFFFF).try_into().unwrap();
+    res
+}
+
 // used for shifting 
+// input -> u8 b/c 63 max power we will need to calculate
+// output -> u64 b/c max size for 2^63
 fn power_of_2(n: u8) -> u64 {
     let mut result = 1;
     let mut i = 0;
@@ -74,6 +88,8 @@ fn test_power_of_2() {
 fn test_shift_left() {
     assert(shift_left(0b01, 1) == 0b10, '0b01 << 1 should be 0b10');
     assert(shift_left(0b0001, 2) == 0b0100, '0b0001 << 2 should be 0b0100');
+    assert(shift_left(0x0101010101010100, 2) == 0x404040404040400, '');
+    assert(shift_left(0x1, 63) == 0x8000000000000000, '');
 }
 
 #[test]
@@ -110,5 +126,17 @@ fn test_shift_rank_down() {
 fn test_shift_rank_up_8th_rank() {
     let x = 0xff00000000000000; // 8th rank
     shift_rank_up(x); // should overflow
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_bitboard_shift_left() {
+    let x = 0x101010101010100;
+    let shifted = bitboard_shift_left(x, 20);
+    assert(shifted == 0x1010101010000000, '');
+
+    let x = 0x101010101010100;
+    let shifted = bitboard_shift_left(x, 63);
+    assert(shifted == 0x0, '');
 }
 

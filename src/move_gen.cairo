@@ -6,6 +6,7 @@ use starkfish::utils::shift_rank_up;
 use starkfish::utils::shift_rank_down;
 use starkfish::utils::shift_left;
 use starkfish::utils::shift_right;
+use starkfish::utils::bitboard_shift_left;
 
 
 const RANK3: u64 =          0x0000000000ff0000;
@@ -15,6 +16,18 @@ const RANK6: u64 =          0x0000ff0000000000;
 
 const NOT_A_FILE: u64 =     0xfefefefefefefefe;
 const NOT_H_FILE: u64 =     0x7f7f7f7f7f7f7f7f;
+
+
+// board layout 	
+//  56	57	58	59	60	61	62	63
+//  48	49	50	51	52	53	54	55
+//  40	41	42	43	44	45	46	47
+//  32	33	34	35	36	37	38	39
+//  24	25	26	27	28	29	30	31
+//  16	17	18	19	20	21	22	23
+//  08	09	10	11	12	13	14	15
+//  00	01	02	03	04	05	06	07
+
 
 // ---------------------------------------------------
 // -------- PAWN MOVES -------------------------------
@@ -42,8 +55,6 @@ fn white_pawns_double_push_eligible(wpawns: u64, empty: u64) -> u64 {
     white_pawns_single_push_eligible(wpawns, empty_rank3)
 }
 
-// TODO white pawn attacks 
-// east side == king side
 //  white pawns       white pawns << 9  &       notAFile     ==   wPawnEastAttacks
 //  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
 //  . . . . . . . .     . . . . . . . .      . 1 1 1 1 1 1 1      . . . . . . . . 
@@ -113,14 +124,56 @@ fn black_pawn_single_attacks(bpawns: u64) -> u64 {
     black_pawn_ks_attacks(bpawns) ^ black_pawn_qs_attacks(bpawns)
 }
 
+// ---------------------------------------------------
+// -------- KNIGHT MOVES -----------------------------
+// ---------------------------------------------------
+
+
+// Rook, Bishop, and Queen, are all sets of the more 
+// general "ray moves"
+//
+//    northwest    north   northeast
+//    noWe         nort         noEa
+//
+//           +7    +8    +9
+//               \  |  /
+//   west    -1 <-  0 -> +1    east (king side)
+//  (queen       /  |  \
+//   side)   -9    -8    -7
+//
+//   soWe         sout         soEa
+//   southwest    south   southeast
+
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
 // ---------------------------------------------------
 
-// ---------------------------------------------------
-// -------- KNIGHT MOVES -----------------------------
-// ---------------------------------------------------
+// board layout 	
+//  56	57	58	59	60	61	62	63
+//  48	49	50	51	52	53	54	55
+//  40	41	42	43	44	45	46	47
+//  32	33	34	35	36	37	38	39
+//  24	25	26	27	28	29	30	31
+//  16	17	18	19	20	21	22	23
+//  08	09	10	11	12	13	14	15
+//  00	01	02	03	04	05	06	07
+
+fn north_sliding_targets(sq: u8) -> u64 {
+    bitboard_shift_left(0x0101010101010100, sq)
+}
+fn south_sliding_targets(sq: u8) -> u64 {
+    shift_right(0x8080808080808000, (sq ^ 63))
+}
+fn east_sliding_targets(sq: u8) -> u64 {
+    let one = 0x1;
+    2 * ( ( shift_left(one, (sq | 7)) ) ) - shift_left(one, sq) 
+}
+fn west_sliding_targets(sq: u8) -> u64 {
+    let one = 0x1;
+    2 * ( ( shift_right(one, (sq | 7)) ) ) - shift_right(one, sq) 
+}
+
 
 // ---------------------------------------------------
 // -------- BISHOP MOVES -----------------------------
@@ -300,7 +353,6 @@ fn test_black_pawn_attacks() {
     assert(all_attacks == 0xf70a00000000, 'failed all attacks');
     assert(double_attacks == 0x540000000000, 'failed double attacks');
     assert(single_attacks == 0xa30a00000000, 'failed single attacks');
-
 }
 
 
@@ -308,7 +360,99 @@ fn test_black_pawn_attacks() {
 // -------- ROOK MOVE TESTS --------------------------
 // ---------------------------------------------------
 
-// ---------------------------------------------------
+// board layout 	
+//  8   56	57	58	59	60	61	62	63
+//  7   48	49	50	51	52	53	54	55
+//  6   40	41	42	43	44	45	46	47
+//  5   32	33	34	35	36	37	38	39
+//  4   24	25	26	27	28	29	30	31
+//  3   16	17	18	19	20	21	22	23
+//  2   08	09	10	11	12	13	14	15
+//  1   00	01	02	03	04	05	06	07
+//      A   B   C   D   E   F   G   H
+
+#[test]
+#[available_gas(9999999)]
+fn test_north_sliding_attacks() {
+    //  8 . . . 1 . . . .   
+    //  7 . . . 1 . . . .   
+    //  6 . . . 1 . . . .   
+    //  5 . . . R . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8; // D5
+    let targets = north_sliding_targets(sq);
+    targets.print();
+    assert (targets == 0x808080000000000, '');
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_south_sliding_attacks() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . R . . . .   
+    //  4 . . . 1 . . . .   
+    //  3 . . . 1 . . . .   
+    //  2 . . . 1 . . . .   
+    //  1 . . . 1 . . . .   
+    //      a b c d e f g h
+    let sq = 35_u8; // D5
+    let targets = south_sliding_targets(sq);
+    assert (targets == 0x808080808, '');
+
+    //  8 . . . . . . . R   
+    //  7 . . . . . . . 1   
+    //  6 . . . . . . . 1   
+    //  5 . . . . . . . 1   
+    //  4 . . . . . . . 1   
+    //  3 . . . . . . . 1   
+    //  2 . . . . . . . 1   
+    //  1 . . . . . . . 1   
+    //    a b c d e f g h
+    let sq = 63_u8; // D5
+    let targets = south_sliding_targets(sq);
+    targets.print();
+    assert (targets == 8080808080808080, '');
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_east_sliding_attacks() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . R 1 1 1 1   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //      a b c d e f g h
+    let sq = 35_u64; // D5
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_west_sliding_attacks() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 1 1 1 R . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //      a b c d e f g h
+    let sq = 35_u64; // D5
+}
+
 // -------- KNIGHT MOVE TESTS ------------------------
 // ---------------------------------------------------
 
