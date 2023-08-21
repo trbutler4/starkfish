@@ -1,3 +1,4 @@
+use core::traits::Into;
 use debug::PrintTrait;
 use starkfish::board::BoardImpl;
 use starkfish::board::BoardTrait;
@@ -17,6 +18,8 @@ const RANK6: u64 =          0x0000ff0000000000;
 
 const NOT_A_FILE: u64 =     0xfefefefefefefefe;
 const NOT_H_FILE: u64 =     0x7f7f7f7f7f7f7f7f;
+
+const ONE: u64 =            0x0000000000000001;
 
 
 // board layout 	
@@ -167,12 +170,10 @@ fn south_sliding_targets(sq: u8) -> u64 {
     bitboard_shift_right(0x80808080808080, (sq ^ 63))
 }
 fn east_sliding_targets(sq: u8) -> u64 {
-    let one = 0x1;
-    2 * ( ( shift_left(one, (sq | 7)) ) ) - shift_left(one, sq) 
+    2 * (shift_left(ONE, (sq | 7))  - shift_left(ONE, sq))
 }
 fn west_sliding_targets(sq: u8) -> u64 {
-    let one = 0x1;
-    2 * ( ( shift_right(one, (sq | 7)) ) ) - shift_right(one, sq) 
+    shift_left(ONE, sq) - (shift_left(ONE, (sq & 56)))
 }
 
 
@@ -403,7 +404,6 @@ fn test_south_sliding_attacks() {
     //    a b c d e f g h
     let sq = 35_u8; // D5
     let targets = south_sliding_targets(sq);
-    targets.print();
     assert (targets == 0x8080808, 'rook on d5');
 
     //  8 . . . . . . . R   
@@ -417,12 +417,10 @@ fn test_south_sliding_attacks() {
     //    a b c d e f g h
     let sq = 63_u8; // D5
     let targets = south_sliding_targets(sq);
-    targets.print();
     assert (targets == 0x80808080808080, 'rook on h8');
 }
 
 #[test]
-#[ignore]
 #[available_gas(9999999)]
 fn test_east_sliding_attacks() {
     //  8 . . . . . . . .   
@@ -433,12 +431,26 @@ fn test_east_sliding_attacks() {
     //  3 . . . . . . . .   
     //  2 . . . . . . . .   
     //  1 . . . . . . . .   
-    //      a b c d e f g h
-    let sq = 35_u64; // D5
+    //    a b c d e f g h
+    let sq = 35_u8; // D5
+    let targets = east_sliding_targets(sq);
+    assert(targets == 0xf000000000, 'rook on d5');
+
+    //  8 R 1 1 1 1 1 1 1   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 56_u8; // A8
+    let targets = east_sliding_targets(sq);
+    assert(targets == 0xfe00000000000000, 'rook on a8')
 }
 
 #[test]
-#[ignore]
 #[available_gas(9999999)]
 fn test_west_sliding_attacks() {
     //  8 . . . . . . . .   
@@ -450,7 +462,22 @@ fn test_west_sliding_attacks() {
     //  2 . . . . . . . .   
     //  1 . . . . . . . .   
     //      a b c d e f g h
-    let sq = 35_u64; // D5
+    let sq = 35_u8; // D5
+    let targets = west_sliding_targets(sq);
+    assert(targets == 0x700000000, 'rook on d5');
+
+    //  8 1 1 1 1 1 1 1 R   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 63_u8; // h8
+    let targets = west_sliding_targets(sq);
+    assert(targets == 0x7f00000000000000, 'rook on h8');
 }
 
 // -------- KNIGHT MOVE TESTS ------------------------
