@@ -11,15 +11,15 @@ use starkfish::utils::bitboard_shift_left;
 use starkfish::utils::bitboard_shift_right;
 
 
-const RANK3: u64 =          0x0000000000ff0000;
-const RANK4: u64 =          0x00000000ff000000;
-const RANK5: u64 =          0x000000ff00000000;
-const RANK6: u64 =          0x0000ff0000000000;
+const RANK3: u64 = 0x0000000000ff0000;
+const RANK4: u64 = 0x00000000ff000000;
+const RANK5: u64 = 0x000000ff00000000;
+const RANK6: u64 = 0x0000ff0000000000;
 
-const NOT_A_FILE: u64 =     0xfefefefefefefefe;
-const NOT_H_FILE: u64 =     0x7f7f7f7f7f7f7f7f;
+const NOT_A_FILE: u64 = 0xfefefefefefefefe;
+const NOT_H_FILE: u64 = 0x7f7f7f7f7f7f7f7f;
 
-const ONE: u64 =            0x0000000000000001;
+const ONE: u64 = 0x0000000000000001;
 
 
 // board layout 	
@@ -31,7 +31,6 @@ const ONE: u64 =            0x0000000000000001;
 //  16	17	18	19	20	21	22	23
 //  08	09	10	11	12	13	14	15
 //  00	01	02	03	04	05	06	07
-
 
 // ---------------------------------------------------
 // -------- PAWN MOVES -------------------------------
@@ -55,7 +54,7 @@ fn white_pawns_single_push_eligible(wpawns: u64, empty: u64) -> u64 {
 }
 
 fn white_pawns_double_push_eligible(wpawns: u64, empty: u64) -> u64 {
-    let empty_rank3 = shift_rank_down(empty & RANK4) & empty; 
+    let empty_rank3 = shift_rank_down(empty & RANK4) & empty;
     white_pawns_single_push_eligible(wpawns, empty_rank3)
 }
 
@@ -90,13 +89,11 @@ fn white_pawn_single_attacks(wpawns: u64) -> u64 {
 }
 
 fn all_white_pawn_pushes(wpawns: u64, empty: u64) -> u64 {
-    white_pawn_single_push_targets(wpawns, empty) |
-    white_pawn_double_push_targets(wpawns, empty)    
+    white_pawn_single_push_targets(wpawns, empty) | white_pawn_double_push_targets(wpawns, empty)
 }
 
 fn all_white_pawn_attacks(wpawns: u64) -> u64 {
-    white_pawn_ks_attacks(wpawns) |
-    white_pawn_qs_attacks(wpawns)
+    white_pawn_ks_attacks(wpawns) | white_pawn_qs_attacks(wpawns)
 }
 
 fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
@@ -139,19 +136,16 @@ fn black_pawn_single_attacks(bpawns: u64) -> u64 {
 }
 
 fn all_black_pawn_pushes(bpawns: u64, empty: u64) -> u64 {
-    black_pawn_single_push_targets(bpawns, empty) |
-    black_pawn_double_push_targets(bpawns, empty)
+    black_pawn_single_push_targets(bpawns, empty) | black_pawn_double_push_targets(bpawns, empty)
 }
 
 fn all_black_pawn_attacks(bpawns: u64) -> u64 {
-    black_pawn_ks_attacks(bpawns) |
-    black_pawn_qs_attacks(bpawns)
+    black_pawn_ks_attacks(bpawns) | black_pawn_qs_attacks(bpawns)
 }
 
 // ---------------------------------------------------
 // -------- KNIGHT MOVES -----------------------------
 // ---------------------------------------------------
-
 
 // Rook, Bishop, and Queen, are all sets of the more 
 // general "ray moves"
@@ -167,7 +161,6 @@ fn all_black_pawn_attacks(bpawns: u64) -> u64 {
 //
 //   soWe         sout         soEa
 //   southwest    south   southeast
-
 
 // ---------------------------------------------------
 // -------- ROOK MOVES -------------------------------
@@ -190,17 +183,17 @@ fn south_sliding_targets(sq: u8) -> u64 {
     bitboard_shift_right(0x80808080808080, (sq ^ 63))
 }
 fn east_sliding_targets(sq: u8) -> u64 {
-    2 * (shift_left(ONE, (sq | 7))  - shift_left(ONE, sq))
+    2 * (shift_left(ONE, (sq | 7)) - shift_left(ONE, sq))
 }
 fn west_sliding_targets(sq: u8) -> u64 {
     shift_left(ONE, sq) - (shift_left(ONE, (sq & 56)))
 }
 
 fn all_orthogonal_targets(sq: u8) -> u64 {
-    north_sliding_targets(sq) | 
-    south_sliding_targets(sq) | 
-    east_sliding_targets(sq) |
-    west_sliding_targets(sq)
+    north_sliding_targets(sq)
+        | south_sliding_targets(sq)
+        | east_sliding_targets(sq)
+        | west_sliding_targets(sq)
 }
 
 
@@ -280,7 +273,9 @@ fn test_white_pawns_single_push_eligible() {
     let mut new_board = BoardTrait::new();
     let pawns = new_board.white_pawns;
     let empty = new_board.empty_squares();
-    assert(white_pawns_single_push_eligible(pawns, empty) == 0xff00, 'all pawns single push eligible')
+    assert(
+        white_pawns_single_push_eligible(pawns, empty) == 0xff00, 'all pawns single push eligible'
+    )
 }
 
 #[test]
@@ -290,7 +285,9 @@ fn test_white_pawns_double_push_eligble() {
     let mut new_board = BoardTrait::new();
     let pawns = new_board.white_pawns;
     let empty = new_board.empty_squares();
-    assert(white_pawns_double_push_eligible(pawns, empty) == 0xff00, 'all pawns double push eligible')
+    assert(
+        white_pawns_double_push_eligible(pawns, empty) == 0xff00, 'all pawns double push eligible'
+    )
 }
 
 #[test]
@@ -465,7 +462,7 @@ fn test_north_sliding_attacks() {
     //    a b c d e f g h
     let sq = 35_u8; // D5
     let targets = north_sliding_targets(sq);
-    assert (targets == 0x808080000000000, '');
+    assert(targets == 0x808080000000000, '');
 }
 
 #[test]
@@ -482,7 +479,7 @@ fn test_south_sliding_attacks() {
     //    a b c d e f g h
     let sq = 35_u8; // D5
     let targets = south_sliding_targets(sq);
-    assert (targets == 0x8080808, 'rook on d5');
+    assert(targets == 0x8080808, 'rook on d5');
 
     //  8 . . . . . . . R   
     //  7 . . . . . . . 1   
@@ -495,7 +492,7 @@ fn test_south_sliding_attacks() {
     //    a b c d e f g h
     let sq = 63_u8; // D5
     let targets = south_sliding_targets(sq);
-    assert (targets == 0x80808080808080, 'rook on h8');
+    assert(targets == 0x80808080808080, 'rook on h8');
 }
 
 #[test]
@@ -679,7 +676,6 @@ fn test_southeast_sliding_attacks() {
     let targets = southeast_sliding_targets(sq);
     assert(targets == 0x10204080, 'bishop on d5')
 }
-
 // ---------------------------------------------------
 // -------- QUEEN MOVE TESTS -------------------------
 // ---------------------------------------------------
@@ -687,3 +683,4 @@ fn test_southeast_sliding_attacks() {
 // ---------------------------------------------------
 // -------- KING MOVE TESTS --------------------------
 // ---------------------------------------------------
+
