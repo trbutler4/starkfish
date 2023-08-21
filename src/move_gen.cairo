@@ -189,7 +189,7 @@ fn west_sliding_targets(sq: u8) -> u64 {
     shift_left(ONE, sq) - (shift_left(ONE, (sq & 56)))
 }
 
-fn all_orthogonal_targets(sq: u8) -> u64 {
+fn all_orthogonal_sliding_targets(sq: u8) -> u64 {
     north_sliding_targets(sq)
         | south_sliding_targets(sq)
         | east_sliding_targets(sq)
@@ -557,7 +557,7 @@ fn test_west_sliding_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_all_orthogonal_targets() {
+fn test_all_orthogonal_sliding_attacks() {
     //  8 . . . 1 . . . .   
     //  7 . . . 1 . . . .   
     //  6 . . . 1 . . . .   
@@ -568,7 +568,7 @@ fn test_all_orthogonal_targets() {
     //  1 . . . 1 . . . .   
     //    a b c d e f g h
     let sq = 35_u8; // D5
-    let targets = all_orthogonal_targets(sq);
+    let targets = all_orthogonal_sliding_targets(sq);
     assert(targets == 0x80808f708080808, 'rook on d5');
 
     //  8 . 1 . . . . . .   
@@ -581,7 +581,7 @@ fn test_all_orthogonal_targets() {
     //  1 . 1 . . . . . .   
     //    a b c d e f g h
     let sq = 9_u8; // B2
-    let targets = all_orthogonal_targets(sq);
+    let targets = all_orthogonal_sliding_targets(sq);
     assert(targets == 0x20202020202fd02, 'rook on b2')
 }
 
@@ -592,7 +592,7 @@ fn test_all_orthogonal_targets() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_northeast_sliding_attacks() {
+fn test_northeast_sliding_targets() {
     //  8 . . . . . . 1 .   
     //  7 . . . . . 1 . .   
     //  6 . . . . 1 . . .   
@@ -625,7 +625,7 @@ fn test_northeast_sliding_attacks() {
 #[test]
 #[ignore]
 #[available_gas(9999999)]
-fn test_northwest_sliding_attacks() {
+fn test_northwest_sliding_targets() {
     //  8 1 . . . . . . .   
     //  7 . 1 . . . . . .   
     //  6 . . 1 . . . . .   
@@ -644,7 +644,7 @@ fn test_northwest_sliding_attacks() {
 #[test]
 #[ignore]
 #[available_gas(9999999)]
-fn test_southwest_sliding_attacks() {
+fn test_southwest_sliding_targets() {
     //  8 . . . . . . . .   
     //  7 . . . . . . . .   
     //  6 . . . . . . . .   
@@ -662,7 +662,7 @@ fn test_southwest_sliding_attacks() {
 #[test]
 #[ignore]
 #[available_gas(9999999)]
-fn test_southeast_sliding_attacks() {
+fn test_southeast_sliding_targets() {
     //  8 . . . . . . . .   
     //  7 . . . . . . . .   
     //  6 . . . . . . . .   
