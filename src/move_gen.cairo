@@ -89,6 +89,16 @@ fn white_pawn_single_attacks(wpawns: u64) -> u64 {
     white_pawn_ks_attacks(wpawns) ^ white_pawn_qs_attacks(wpawns)
 }
 
+fn all_white_pawn_pushes(wpawns: u64, empty: u64) -> u64 {
+    white_pawn_single_push_targets(wpawns, empty) |
+    white_pawn_double_push_targets(wpawns, empty)    
+}
+
+fn all_white_pawn_attacks(wpawns: u64) -> u64 {
+    white_pawn_ks_attacks(wpawns) |
+    white_pawn_qs_attacks(wpawns)
+}
+
 fn black_pawn_single_push_targets(bpawns: u64, empty: u64) -> u64 {
     shift_rank_down(bpawns) & empty
 }
@@ -126,6 +136,16 @@ fn black_pawn_double_attacks(bpawns: u64) -> u64 {
 
 fn black_pawn_single_attacks(bpawns: u64) -> u64 {
     black_pawn_ks_attacks(bpawns) ^ black_pawn_qs_attacks(bpawns)
+}
+
+fn all_black_pawn_pushes(bpawns: u64, empty: u64) -> u64 {
+    black_pawn_single_push_targets(bpawns, empty) |
+    black_pawn_double_push_targets(bpawns, empty)
+}
+
+fn all_black_pawn_attacks(bpawns: u64) -> u64 {
+    black_pawn_ks_attacks(bpawns) |
+    black_pawn_qs_attacks(bpawns)
 }
 
 // ---------------------------------------------------
@@ -234,6 +254,23 @@ fn test_white_pawn_double_push_targets() {
     let pawns = 0x55aa00;
     let target = white_pawn_double_push_targets(pawns, empty);
     assert(target == 0xaa000000, 'only eligible double pushes');
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_all_white_pawn_pushes() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.white_pawns;
+    let empty = new_board.empty_squares();
+    assert(all_white_pawn_pushes(pawns, empty) == 0xffff0000, 'new board')
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_all_white_pawn_attacks() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.white_pawns;
+    assert(all_white_pawn_attacks(pawns) == 0xff0000, 'new board')
 }
 
 #[test]
@@ -375,6 +412,23 @@ fn test_black_pawn_attacks() {
     assert(all_attacks == 0xf70a00000000, 'failed all attacks');
     assert(double_attacks == 0x540000000000, 'failed double attacks');
     assert(single_attacks == 0xa30a00000000, 'failed single attacks');
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_all_black_pawn_pushes() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.black_pawns;
+    let empty = new_board.empty_squares();
+    assert(all_black_pawn_pushes(pawns, empty) == 0xffff00000000, 'new board');
+}
+
+#[test]
+#[available_gas(9999999)]
+fn test_all_black_pawn_attacks() {
+    let mut new_board = BoardTrait::new();
+    let pawns = new_board.black_pawns;
+    assert(all_black_pawn_attacks(pawns) == 0xff0000000000, 'new board');
 }
 
 
