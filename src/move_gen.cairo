@@ -450,7 +450,7 @@ fn test_all_black_pawn_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_north_sliding_attacks() {
+fn test_north_sliding_targets() {
     //  8 . . . 1 . . . .   
     //  7 . . . 1 . . . .   
     //  6 . . . 1 . . . .   
@@ -467,7 +467,7 @@ fn test_north_sliding_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_south_sliding_attacks() {
+fn test_south_sliding_targets() {
     //  8 . . . . . . . .   
     //  7 . . . . . . . .   
     //  6 . . . . . . . .   
@@ -497,7 +497,7 @@ fn test_south_sliding_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_east_sliding_attacks() {
+fn test_east_sliding_targets() {
     //  8 . . . . . . . .   
     //  7 . . . . . . . .   
     //  6 . . . . . . . .   
@@ -527,7 +527,7 @@ fn test_east_sliding_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_west_sliding_attacks() {
+fn test_west_sliding_targets() {
     //  8 . . . . . . . .   
     //  7 . . . . . . . .   
     //  6 . . . . . . . .   
@@ -557,7 +557,7 @@ fn test_west_sliding_attacks() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_all_orthogonal_sliding_attacks() {
+fn test_all_orthogonal_sliding_targets() {
     //  8 . . . 1 . . . .   
     //  7 . . . 1 . . . .   
     //  6 . . . 1 . . . .   
