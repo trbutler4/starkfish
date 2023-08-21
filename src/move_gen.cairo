@@ -176,10 +176,30 @@ fn west_sliding_targets(sq: u8) -> u64 {
     shift_left(ONE, sq) - (shift_left(ONE, (sq & 56)))
 }
 
+fn all_orthogonal_targets(sq: u8) -> u64 {
+    north_sliding_targets(sq) | 
+    south_sliding_targets(sq) | 
+    east_sliding_targets(sq) |
+    west_sliding_targets(sq)
+}
+
 
 // ---------------------------------------------------
 // -------- BISHOP MOVES -----------------------------
 // ---------------------------------------------------
+
+fn northeast_sliding_targets(sq: u8) -> u64 {
+    0x0
+}
+fn northwest_sliding_targets(sq: u8) -> u64 {
+    0x0
+}
+fn southeast_sliding_targets(sq: u8) -> u64 {
+    0x0
+}
+fn southwest_sliding_targets(sq: u8) -> u64 {
+    0x0
+}
 
 // ---------------------------------------------------
 // -------- QUEEN MOVES ------------------------------
@@ -359,6 +379,10 @@ fn test_black_pawn_attacks() {
 
 
 // ---------------------------------------------------
+// -------- KNIGHT MOVE TESTS ------------------------
+// ---------------------------------------------------
+
+// ---------------------------------------------------
 // -------- ROOK MOVE TESTS --------------------------
 // ---------------------------------------------------
 
@@ -480,12 +504,127 @@ fn test_west_sliding_attacks() {
     assert(targets == 0x7f00000000000000, 'rook on h8');
 }
 
-// -------- KNIGHT MOVE TESTS ------------------------
-// ---------------------------------------------------
+#[test]
+#[available_gas(9999999)]
+fn test_all_orthogonal_targets() {
+    //  8 . . . 1 . . . .   
+    //  7 . . . 1 . . . .   
+    //  6 . . . 1 . . . .   
+    //  5 1 1 1 R 1 1 1 1   
+    //  4 . . . 1 . . . .   
+    //  3 . . . 1 . . . .   
+    //  2 . . . 1 . . . .   
+    //  1 . . . 1 . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8; // D5
+    let targets = all_orthogonal_targets(sq);
+    assert(targets == 0x80808f708080808, 'rook on d5');
+
+    //  8 . 1 . . . . . .   
+    //  7 . 1 . . . . . .   
+    //  6 . 1 . . . . . .   
+    //  5 . 1 . . . . . .   
+    //  4 . 1 . . . . . .   
+    //  3 . 1 . . . . . .   
+    //  2 1 R 1 1 1 1 1 1   
+    //  1 . 1 . . . . . .   
+    //    a b c d e f g h
+    let sq = 9_u8; // B2
+    let targets = all_orthogonal_targets(sq);
+    assert(targets == 0x20202020202fd02, 'rook on b2')
+}
+
 
 // ---------------------------------------------------
 // -------- BISHOP MOVE TESTS ------------------------
 // ---------------------------------------------------
+
+#[test]
+#[available_gas(9999999)]
+fn test_northeast_sliding_attacks() {
+    //  8 . . . . . . 1 .   
+    //  7 . . . . . 1 . .   
+    //  6 . . . . 1 . . .   
+    //  5 . . . B . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = northeast_sliding_targets(sq);
+    'd5 targets'.print();
+    targets.print();
+    assert(targets == 0x4020100000000000, 'bishop on d5');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . 1   
+    //  5 . . . . . . 1 .   
+    //  4 . . . . . 1 . .   
+    //  3 . . . . 1 . . .   
+    //  2 . . . B . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 11_u8; // d2
+    let targets = northeast_sliding_targets(sq);
+    assert(targets == 0x10204080000, 'bishop on d2')
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_northwest_sliding_attacks() {
+    //  8 1 . . . . . . .   
+    //  7 . 1 . . . . . .   
+    //  6 . . 1 . . . . .   
+    //  5 . . . B . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = northwest_sliding_targets(sq);
+    targets.print();
+    assert(targets == 0x102040000000000, 'bishop on d5')
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_southwest_sliding_attacks() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . B . . . .   
+    //  4 . . 1 . . . . .   
+    //  3 . 1 . . . . . .   
+    //  2 1 . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = southwest_sliding_targets(sq);
+    assert(targets == 0x4020100, 'bishop on d5')
+}
+
+#[test]
+#[ignore]
+#[available_gas(9999999)]
+fn test_southeast_sliding_attacks() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . B . . . .   
+    //  4 . . . . 1 . . .   
+    //  3 . . . . . 1 . .   
+    //  2 . . . . . . 1 .   
+    //  1 . . . . . . . 1   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = southeast_sliding_targets(sq);
+    assert(targets == 0x10204080, 'bishop on d5')
+}
 
 // ---------------------------------------------------
 // -------- QUEEN MOVE TESTS -------------------------

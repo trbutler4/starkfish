@@ -151,6 +151,10 @@ fn test_bitboard_shift_left() {
     let x = 0x1;
     let shifted = bitboard_shift_left(x, 63);
     assert(shifted == 0x8000000000000000, 'corner to corner');
+
+    let x = 0x102810000000;
+    let shifted = bitboard_shift_left(x, 1);
+    assert(shifted == 0x205020000000, 'diamond pattern');
 }
 
 #[test]
@@ -163,4 +167,8 @@ fn test_bitboard_shift_right() {
     let x = 0x8080808080808080;
     let shifted = bitboard_shift_right(x, 20);
     assert(shifted == 0x80808080808, 'shifting some off board');
+
+    let x = 0x102810000000;
+    let shifted = bitboard_shift_right(x, 1);
+    assert(shifted == 0x81408000000, 'diamond pattern');
 }
