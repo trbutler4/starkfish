@@ -9,6 +9,8 @@ use starkfish::utils::shift_left;
 use starkfish::utils::shift_right;
 use starkfish::utils::bitboard_shift_left;
 use starkfish::utils::bitboard_shift_right;
+use starkfish::utils::get_file_index;
+use starkfish::utils::get_rank_index;
 
 
 const RANK3: u64 = 0x0000000000ff0000;
@@ -200,6 +202,8 @@ fn all_orthogonal_sliding_targets(sq: u8) -> u64 {
 // ---------------------------------------------------
 // -------- BISHOP MOVES -----------------------------
 // ---------------------------------------------------
+
+// https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks
 
 fn northeast_sliding_targets(sq: u8) -> u64 {
     0x0
@@ -604,8 +608,6 @@ fn test_northeast_sliding_targets() {
     //    a b c d e f g h
     let sq = 35_u8;
     let targets = northeast_sliding_targets(sq);
-    'd5 targets'.print();
-    targets.print();
     assert(targets == 0x4020100000000000, 'bishop on d5');
 
     //  8 . . . . . . . .   
@@ -619,7 +621,7 @@ fn test_northeast_sliding_targets() {
     //    a b c d e f g h
     let sq = 11_u8; // d2
     let targets = northeast_sliding_targets(sq);
-    assert(targets == 0x10204080000, 'bishop on d2')
+    assert(targets == 0x804020100000, 'bishop on d2')
 }
 
 #[test]
