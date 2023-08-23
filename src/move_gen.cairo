@@ -205,11 +205,39 @@ fn all_orthogonal_sliding_targets(sq: u8) -> u64 {
 
 // https://www.chessprogramming.org/Efficient_Generation_of_Sliding_Piece_Attacks
 
+// probably better way to do this 
 fn northeast_sliding_targets(sq: u8) -> u64 {
-    0x0
+    let mut cur_sq = sq + 9;
+
+    let mut res = 0x0; // blank for us to fill up with bits
+    loop {
+        if (cur_sq > 63) {
+            break;
+        }
+        if (get_file_index(cur_sq - 9) == 7) {
+            break;
+        }
+        res = res | bitboard_shift_left(ONE, cur_sq);
+        res = res & NOT_A_FILE;
+        cur_sq += 9;
+    };
+
+    res 
 }
 fn northwest_sliding_targets(sq: u8) -> u64 {
-    0x0
+    let mut cur_sq = sq + 7;
+
+    let mut res = 0x0; // blank for us to fill up with bits
+    loop {
+        if (cur_sq > 63) {
+            break;
+        }
+        res = res & NOT_A_FILE;
+        res = res | bitboard_shift_left(ONE, cur_sq);
+        cur_sq += 7;
+    };
+
+    res 
 }
 fn southeast_sliding_targets(sq: u8) -> u64 {
     0x0
@@ -608,6 +636,8 @@ fn test_northeast_sliding_targets() {
     //    a b c d e f g h
     let sq = 35_u8;
     let targets = northeast_sliding_targets(sq);
+    'bishop on d5'.print();
+    targets.print();
     assert(targets == 0x4020100000000000, 'bishop on d5');
 
     //  8 . . . . . . . .   
@@ -621,7 +651,39 @@ fn test_northeast_sliding_targets() {
     //    a b c d e f g h
     let sq = 11_u8; // d2
     let targets = northeast_sliding_targets(sq);
-    assert(targets == 0x804020100000, 'bishop on d2')
+    'bishop on d2'.print();
+    targets.print();
+    assert(targets == 0x804020100000, 'bishop on d2');
+
+    //  8 . . . . . . . 1   
+    //  7 . . . . . . 1 .   
+    //  6 . . . . . 1 . .   
+    //  5 . . . . 1 . . .   
+    //  4 . . . 1 . . . .   
+    //  3 . . 1 . . . . .   
+    //  2 . 1 . . . . . .   
+    //  1 B . . . . . . .   
+    //    a b c d e f g h
+    let sq = 0_u8;
+    let targets = northeast_sliding_targets(sq);
+    'bishop on a1'.print();
+    targets.print();
+    assert(targets == 0x8040201008040200, 'bishop on a1');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 63_u8;
+    let targets = northeast_sliding_targets(sq);
+    'bishop on h8'.print();
+    targets.print();
+    assert(targets == 0x0, 'bishop on h8');
 }
 
 #[test]
@@ -639,8 +701,21 @@ fn test_northwest_sliding_targets() {
     //    a b c d e f g h
     let sq = 35_u8;
     let targets = northwest_sliding_targets(sq);
+    assert(targets == 0x102040000000000, 'bishop on d5');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 1 . . . . . . .   
+    //  4 . 1 . . . . . .   
+    //  3 . . 1 . . . . .   
+    //  2 . . . B . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 11_u8;
+    let targets = northwest_sliding_targets(sq);
     targets.print();
-    assert(targets == 0x102040000000000, 'bishop on d5')
+    assert(targets == 0x102040000, 'bishop on d2')
 }
 
 #[test]
@@ -678,6 +753,7 @@ fn test_southeast_sliding_targets() {
     let targets = southeast_sliding_targets(sq);
     assert(targets == 0x10204080, 'bishop on d5')
 }
+
 // ---------------------------------------------------
 // -------- QUEEN MOVE TESTS -------------------------
 // ---------------------------------------------------
