@@ -192,13 +192,12 @@ fn west_sliding_targets(sq: u8) -> u64 {
     shift_left(ONE, sq) - (shift_left(ONE, (sq & 56)))
 }
 
-fn all_orthogonal_sliding_targets(sq: u8) -> u64 {
+fn rook_targets(sq: u8) -> u64 {
     north_sliding_targets(sq)
         | south_sliding_targets(sq)
         | east_sliding_targets(sq)
         | west_sliding_targets(sq)
 }
-
 
 // ---------------------------------------------------
 // -------- BISHOP MOVES -----------------------------
@@ -270,13 +269,95 @@ fn southwest_sliding_targets(sq: u8) -> u64 {
     res
 }
 
+fn bishop_targets(sq: u8) -> u64 {
+    northwest_sliding_targets(sq) | 
+    northeast_sliding_targets(sq) |
+    southwest_sliding_targets(sq) | 
+    southeast_sliding_targets(sq) 
+}
+
 // ---------------------------------------------------
 // -------- QUEEN MOVES ------------------------------
 // ---------------------------------------------------
 
+
+// just use combination of rook and bishop targets 
+fn queen_targets(sq: u8) -> u64 {
+    bishop_targets(sq) |
+    rook_targets(sq)
+}
+
+
 // ---------------------------------------------------
 // -------- KING MOVES -------------------------------
 // ---------------------------------------------------
+
+fn king_targets(sq: u8) -> u64 {
+    //
+    //    northwest    north   northeast
+    //    noWe         nort         noEa
+    //
+    //           +7    +8    +9
+    //               \  |  /
+    //   west    -1 <-  0 -> +1    east (king side)
+    //  (queen       /  |  \
+    //   side)   -9    -8    -7
+    //
+    //   soWe         sout         soEa
+    //   southwest    south   southeast
+    let mut res = 0x0;
+    if (sq == 0_u8) { // A1
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+        res = res | bitboard_shift_left(ONE, sq + 9);
+    } else if (sq == 7_u8) { // H1
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq + 7);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+    } else if (sq == 56_u8) { // NW corner 
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq - 7);
+    } else if (sq == 63_u8) {// NE corner
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq - 9);
+    } else if (get_file_index(sq) == 0) { // A file 
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq - 7);
+        res = res | bitboard_shift_left(ONE, sq + 9);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+    } else if (get_file_index(sq) == 7) { // H file 
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+        res = res | bitboard_shift_left(ONE, sq - 9);
+        res = res | bitboard_shift_left(ONE, sq + 7);
+    } else if (get_rank_index(sq) == 0) { // rank 1 
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq + 7);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+        res = res | bitboard_shift_left(ONE, sq + 9);
+    } else if (get_rank_index(sq) == 7) { // rank 8 
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq - 9);
+        res = res | bitboard_shift_left(ONE, sq - 7);
+    } else {
+        res = res | bitboard_shift_left(ONE, sq + 1);
+        res = res | bitboard_shift_left(ONE, sq - 1);
+        res = res | bitboard_shift_left(ONE, sq - 7);
+        res = res | bitboard_shift_left(ONE, sq + 7);
+        res = res | bitboard_shift_left(ONE, sq - 8);
+        res = res | bitboard_shift_left(ONE, sq + 8);
+        res = res | bitboard_shift_left(ONE, sq - 9);
+        res = res | bitboard_shift_left(ONE, sq + 9);
+    }
+    res 
+}
 
 // ---------------------------------------------------
 // -------- PAWN MOVE TESTS --------------------------
@@ -613,7 +694,7 @@ fn test_west_sliding_targets() {
 
 #[test]
 #[available_gas(9999999)]
-fn test_all_orthogonal_sliding_targets() {
+fn test_rook_targets() {
     //  8 . . . 1 . . . .   
     //  7 . . . 1 . . . .   
     //  6 . . . 1 . . . .   
@@ -624,7 +705,7 @@ fn test_all_orthogonal_sliding_targets() {
     //  1 . . . 1 . . . .   
     //    a b c d e f g h
     let sq = 35_u8; // D5
-    let targets = all_orthogonal_sliding_targets(sq);
+    let targets = rook_targets(sq);
     assert(targets == 0x80808f708080808, 'rook on d5');
 
     //  8 . 1 . . . . . .   
@@ -637,7 +718,7 @@ fn test_all_orthogonal_sliding_targets() {
     //  1 . 1 . . . . . .   
     //    a b c d e f g h
     let sq = 9_u8; // B2
-    let targets = all_orthogonal_sliding_targets(sq);
+    let targets = rook_targets(sq);
     assert(targets == 0x20202020202fd02, 'rook on b2')
 }
 
@@ -818,11 +899,166 @@ fn test_southeast_sliding_targets() {
     assert(targets == 0x2040810204080, 'bishop on a8')
 }
 
+#[test]
+#[available_gas(9999999)]
+fn test_bishop_targets() {
+    //  8 1 . . . . . 1 .   
+    //  7 . 1 . . . 1 . .   
+    //  6 . . 1 . 1 . . .   
+    //  5 . . . B . . . .   
+    //  4 . . 1 . 1 . . .   
+    //  3 . 1 . . . 1 . .   
+    //  2 1 . . . . . 1 .   
+    //  1 . . . . . . . 1   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = bishop_targets(sq);
+    assert(targets == 0x4122140014224180, 'bishop on d5');
+}
+
 // ---------------------------------------------------
 // -------- QUEEN MOVE TESTS -------------------------
 // ---------------------------------------------------
+
+#[test]
+#[available_gas(9999999)]
+fn test_queen_targets() {
+    //  8 1 . . 1 . . 1 .   
+    //  7 . 1 . 1 . 1 . .   
+    //  6 . . 1 1 1 . . .   
+    //  5 1 1 1 B 1 1 1 1   
+    //  4 . . 1 1 1 . . .   
+    //  3 . 1 . 1 . 1 . .   
+    //  2 1 . . 1 . . 1 .   
+    //  1 . . . 1 . . . 1   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = queen_targets(sq);
+    assert(targets == 0x492a1cf71c2a4988, 'queen on d5');
+}
+
 
 // ---------------------------------------------------
 // -------- KING MOVE TESTS --------------------------
 // ---------------------------------------------------
 
+#[test]
+#[available_gas(99999999999)]
+fn test_king_moves() {
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . 1 1 1 . . .   
+    //  5 . . 1 B 1 . . .   
+    //  4 . . 1 1 1 . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 35_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x1c141c000000, 'king on d5');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 1 1 . . . . . .   
+    //  1 K 1 . . . . . .   
+    //    a b c d e f g h
+    let sq = 0_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x302, 'king on a1');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . 1 1   
+    //  1 . . . . . . 1 K   
+    //    a b c d e f g h
+    let sq = 7_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0xc040, 'king on h1');
+
+    //  8 K 1 . . . . . .   
+    //  7 1 1 . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 56_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x203000000000000, 'king on a8');
+
+    //  8 . . . . . . 1 K   
+    //  7 . . . . . . 1 1   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 63_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x40c0000000000000, 'king on h8');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 1 1 . . . . . .   
+    //  5 K 1 . . . . . .   
+    //  4 1 1 . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 32_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x30203000000, 'king on A file (a5)');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . 1 1   
+    //  5 . . . . . . 1 K   
+    //  4 . . . . . . 1 1   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 39_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0xc040c0000000, 'king on H file (h5)');
+
+    //  8 . . . . . . . .   
+    //  7 . . . . . . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . 1 1 1 . . .   
+    //  1 . . 1 K 1 . . .   
+    //    a b c d e f g h
+    let sq = 3_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x1c14, 'king on 1st rank (d1)');
+
+    //  8 . . 1 K 1 . . .   
+    //  7 . . 1 1 1 . . .   
+    //  6 . . . . . . . .   
+    //  5 . . . . . . . .   
+    //  4 . . . . . . . .   
+    //  3 . . . . . . . .   
+    //  2 . . . . . . . .   
+    //  1 . . . . . . . .   
+    //    a b c d e f g h
+    let sq = 59_u8;
+    let targets = king_targets(sq);
+    assert(targets == 0x141c000000000000, 'king on 8th rank (d8)');
+}
