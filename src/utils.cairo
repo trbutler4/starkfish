@@ -8,6 +8,7 @@ fn shift_left(val: u64, n: u8) -> u64 {
     val * power_of_2(n)
 }
 
+// NOTE: if val will always be divisible by n, felt can offer performance improvement 
 fn shift_right(val: u64, n: u8) -> u64 {
     val / power_of_2(n)
 }
@@ -78,11 +79,11 @@ fn count_set_bits(bb: u64) -> u64 {
 }
 
 fn get_rank_index(sq: u8) -> u8 {
-    (sq / 8) 
+    (sq / 8)
 }
 
 fn get_file_index(sq: u8) -> u8 {
-    (sq % 8) 
+    (sq % 8)
 }
 
 // --------------------------------------------------------------
