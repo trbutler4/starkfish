@@ -50,19 +50,6 @@
 //      A   B   C   D   E   F   G   H
 
 
-Hackathon Game Plan 
-
-day 1 
-- generate playable moves without accounting for the king in check, or en passant
-    - do this as a function in the board representation?
-    - check for king in check after making move?
-- x ray attacks to determine if king is in check
-
-day 2 
-- evaluation and simple material based strategy 
-
-day 3
-- implement on dojo
 
 
 

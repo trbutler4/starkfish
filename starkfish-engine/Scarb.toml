@@ -8,7 +8,6 @@ casm = true
 
 [dependencies]
 starknet = "2.0.2"
-#alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
 
 [tool.snforge]
 # exit_first = true
