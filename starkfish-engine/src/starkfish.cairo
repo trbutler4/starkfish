@@ -15,6 +15,7 @@ mod Starkfish {
     use starkfish::move_gen::all_black_pawn_pushes;
     use starkfish::move_gen::bishop_targets;
     use starkfish::move_gen::king_targets;
+    use starkfish::move_gen::all_knight_targets;
     use starkfish::board::{BoardTrait, BoardImpl};
     #[storage]
     struct Storage {}
@@ -23,19 +24,33 @@ mod Starkfish {
     impl Starkfish of super::IStarkfish<ContractState> {
 
         // to show amount of steps when executed in katana
+        // claculating ONLY the targets squares for all the pieces, not including 
+        // additional logic that would be needed for calculating more complex scenarios.
         fn step_eval(ref self: ContractState) {
             let mut new_board = BoardTrait::new();
             let wpawns = new_board.white_pawns;
             let bpawns = new_board.black_pawns;
             let empty = new_board.empty_squares();
             queen_targets(35_u8);
+            queen_targets(10_u8);
             rook_targets(35_u8);
             rook_targets(32_u8);
+            rook_targets(10_u8);
+            rook_targets(11_u8);
+            bishop_targets(35_u8);
+            bishop_targets(32_u8);
+            bishop_targets(10_u8);
+            bishop_targets(11_u8);
+            all_knight_targets(35_u8);
+            all_knight_targets(32_u8);
+            all_knight_targets(10_u8);
+            all_knight_targets(11_u8);
             all_white_pawn_attacks(wpawns);
             all_black_pawn_attacks(bpawns);
             all_white_pawn_pushes(wpawns, empty);
             all_black_pawn_pushes(bpawns, empty);
             king_targets(35_u8);
+            king_targets(10_u8);
         }
     }
 }
