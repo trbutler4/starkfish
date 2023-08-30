@@ -13,3 +13,13 @@ const WHITE: felt252 = 'white';
 // to represent empty squares 
 const EMPTY: felt252 = 'empty';
 
+// for easier to read move calculations
+// right and left are from the white perspective
+const ONE_RANK: usize = 8;
+const TWO_RANKS: usize = 16;
+const ONE_COL: usize = 1;
+const RIGHT_SINGLE_DIAG: usize = 9;
+const LEFT_SINGLE_DIAG: usize = 7;
+
+
+

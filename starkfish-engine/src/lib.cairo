@@ -6,7 +6,7 @@ mod utils;
 use constants::{PAWN, BISHOP, ROOK, KNIGHT, KING, QUEEN, BLACK, WHITE, EMPTY};
 use array::ArrayTrait;
 use board::BoardTrait;
-use move_gen::Move;
+use move_gen::{Move, generate_moves};
 
 #[starknet::interface]
 trait IStarkfish<TContractState> {
@@ -21,10 +21,12 @@ mod Starkfish {
     use core::debug::PrintTrait;
     use super::constants::{PAWN, BISHOP, ROOK, KNIGHT, KING, QUEEN, BLACK, WHITE, EMPTY};
     use super::board::BoardTrait;
-    use super::move_gen::Move;
+    use super::move_gen::{Move, generate_moves};
 
     #[storage]
     struct Storage {
+        // ? : is there an easy way to convert this to an array for my board 
+        // representation?
         cur_pieces: LegacyMap::<usize, felt252>,
         cur_colors: LegacyMap::<usize, felt252>,
     }
@@ -84,6 +86,12 @@ mod Starkfish {
             a
         }
         fn generate_move(ref self: ContractState) -> Move {
+
+            // for the sake of running on katana to see the steps 
+            let mut b = BoardTrait::new();
+            generate_moves(b, WHITE);
+
+
             Move { from: 51, to: 43 }
         }
     }

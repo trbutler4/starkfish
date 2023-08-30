@@ -21,3 +21,9 @@ read_cur_pieces:
 	starkli call $(CONTRACT_ADDRESS) read_cur_pieces \
 	--rpc http://0.0.0:5050 
 
+generate_move:
+	starkli invoke $(CONTRACT_ADDRESS) generate_move \
+	--rpc http://0.0.0:5050 \
+	--account ~/.starkli-wallets/deployer/account0_account.json \
+	--keystore ~/.starkli-wallets/deployer/account0_keystore.json
+
