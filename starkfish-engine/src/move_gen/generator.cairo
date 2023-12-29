@@ -406,17 +406,32 @@ fn generate_moves(board: Board, turn: felt252) -> Array<Move> {
 
                 // calculate vertical targets
                 loop {
+                    if (get_rank_index(cur_index) >= 7) { break; }
+
                     cur_index += ONE_RANK;
-                    if (get_rank_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+                loop {
+                    if (get_rank_index(cur_index) <= 0) { break; }
+
+                    cur_index -= ONE_RANK;
                     moves.append(Move { from: sq_index, to: cur_index });
                 };
 
                 // calculate horizontal moves
                 loop {
+                    if (get_file_index(cur_index) >= 7) { break; }
+
                     cur_index += ONE_COL;
-                    if (get_file_index(cur_index) > 7) { break; }
                     moves.append(Move { from: sq_index, to: cur_index });
                 };
+                loop {
+                    // prevent sub overflow
+                    if (get_file_index(cur_index) <= 0) { break; }
+
+                    cur_index -= ONE_COL;
+                    moves.append(Move { from: sq_index, to: cur_index });
+                }
             }
 
             // -------------------------
