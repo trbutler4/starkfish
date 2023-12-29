@@ -403,21 +403,80 @@ fn generate_moves(board: Board, turn: felt252) -> Array<Move> {
             // ----- rook moves ------
             // -------------------------
             if (piece == ROOK) {
-                // TODO
+                let mut cur_index = sq_index;
+
+                // calculate vertical targets
+                loop {
+                    cur_index += ONE_RANK;
+                    if (get_rank_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+
+                // calculate horizontal moves
+                loop {
+                    cur_index += ONE_COL;
+                    if (get_file_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
             }
 
             // -------------------------
             // ----- bishop moves ------
             // -------------------------
             if (piece == BISHOP) {
-                // TODO
+                let mut cur_index = sq_index;
+
+                // calculate right diagonal targets
+                loop {
+                    cur_index += RIGHT_SINGLE_DIAG;
+                    if (get_file_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+
+                // calculate left diagonal targets
+                loop {
+                    cur_index += LEFT_SINGLE_DIAG;
+                    if (get_file_index(cur_index) < 0) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
             }
 
             // -------------------------
             // ----- queen moves -------
             // -------------------------
             if (piece == QUEEN) {
-                // TODO
+                // TODO: currently just combining rook and bishop moves, this is
+                // duplicated code and should be refactored 
+                let mut cur_index = sq_index;
+
+                // calculate vertical targets
+                loop {
+                    cur_index += ONE_RANK;
+                    if (get_rank_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+
+                // calculate horizontal moves
+                loop {
+                    cur_index += ONE_COL;
+                    if (get_file_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+
+
+                // calculate right diagonal targets
+                loop {
+                    cur_index += RIGHT_SINGLE_DIAG;
+                    if (get_file_index(cur_index) > 7) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
+
+                // calculate left diagonal targets
+                loop {
+                    cur_index += LEFT_SINGLE_DIAG;
+                    if (get_file_index(cur_index) < 0) { break; }
+                    moves.append(Move { from: sq_index, to: cur_index });
+                };
             }
 
         }
