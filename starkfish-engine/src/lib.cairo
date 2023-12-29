@@ -6,7 +6,7 @@ mod utils;
 use constants::{PAWN, BISHOP, ROOK, KNIGHT, KING, QUEEN, BLACK, WHITE, EMPTY};
 use array::ArrayTrait;
 use board::BoardTrait;
-use move_gen::{Move, generate_moves};
+use move_gen::generator::{Move, generate_moves};
 
 #[starknet::interface]
 trait IStarkfish<TContractState> {
@@ -21,7 +21,7 @@ mod Starkfish {
     use core::debug::PrintTrait;
     use super::constants::{PAWN, BISHOP, ROOK, KNIGHT, KING, QUEEN, BLACK, WHITE, EMPTY};
     use super::board::BoardTrait;
-    use super::move_gen::{Move, generate_moves};
+    use super::move_gen::generator::{Move, generate_moves};
 
     #[storage]
     struct Storage {
