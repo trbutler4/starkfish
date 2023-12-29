@@ -912,7 +912,5 @@ fn test_rook_a_file_rank_7() {
 
     let generated_moves = generate_moves(rook_board, WHITE);
 
-    println!('idk');
-
     assert(generated_moves.len() == 0, 'should have 7 moves available');
 }
