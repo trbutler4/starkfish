@@ -1,3 +1,3 @@
-# starkfish -- starknet chess engine 
+# starkfish -- cairo chess engine 
 
-Created for Starknet Hacker House 2023
+Initially attempted for Starknet Hacker House 2023
